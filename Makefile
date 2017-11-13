@@ -12,3 +12,5 @@ install: hotcorner.exe
 
 uninstall:
 	del "%USERPROFILE%\Start Menu\Programs\Startup\hotcorner.exe"
+
+# set -Name INCLUDE -Value "C:\Program Files (x86)\Windows Kits\10\Include\10.0.16299.0\um;C:\Program Files (x86)\Windows Kits\10\Include\10.0.16299.0\shared;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include"

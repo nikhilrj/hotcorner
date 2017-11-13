@@ -23,23 +23,75 @@
 // If the mouse enters this rectangle, activate the hot corner function.
 // There are some hints about changing corners here
 //      https://github.com/taviso/hotcorner/issues/7#issuecomment-269367351
-static const RECT kHotCorner = {
-    .top    = -20,
-    .left   = -20,
-    .right  = +20,
-    .bottom = +20,
-};
+static const int radius = 20;
+static const int padding = 1000;
 
-// Input to inject when corner activated (Win+Tab by default).
-static const INPUT kCornerInput[] = {
+static RECT kHotCornerLT;
+static RECT kHotCornerRT;
+static RECT kHotCornerLB;
+static RECT kHotCornerRB;
+
+// Initialize the corner rectangles
+static DWORD initCorners() {
+	// Left Top
+	kHotCornerLT.top = -padding;
+	kHotCornerLT.left = -padding;
+	kHotCornerLT.right = radius;
+	kHotCornerLT.bottom = radius;
+	// Right Top
+	kHotCornerRT.top = -padding;
+	kHotCornerRT.left = GetSystemMetrics(SM_CXSCREEN) - radius;
+	kHotCornerRT.right = GetSystemMetrics(SM_CXSCREEN) + padding;
+    kHotCornerRT.bottom = radius;
+	// Left Bottom
+	kHotCornerLB.top = GetSystemMetrics(SM_CYSCREEN) - radius;
+	kHotCornerLB.left = -padding;
+	kHotCornerLB.right = radius;
+	kHotCornerLB.bottom = GetSystemMetrics(SM_CYSCREEN) + padding;
+	// Right Bottom
+	kHotCornerRB.top = GetSystemMetrics(SM_CYSCREEN) - radius;
+	kHotCornerRB.left = GetSystemMetrics(SM_CXSCREEN) - radius;
+	kHotCornerRB.right = GetSystemMetrics(SM_CXSCREEN) + padding;
+	kHotCornerRB.bottom = GetSystemMetrics(SM_CYSCREEN) + padding;
+	return 0;
+}
+
+// Input to inject when left top corner activated (Win)
+static const INPUT kCornerInputLT[] = {
+    { INPUT_KEYBOARD, .ki = { VK_LWIN, .dwFlags = 0 }},
+    { INPUT_KEYBOARD, .ki = { VK_LWIN, .dwFlags = KEYEVENTF_KEYUP }},
+};
+// Input to inject when right top corner activated (Win+Up)
+static const INPUT kCornerInputRT[] = {
+    { INPUT_KEYBOARD, .ki = { VK_LWIN, .dwFlags = 0 }},
+    { INPUT_KEYBOARD, .ki = { VK_UP,  .dwFlags = 0 }},
+    { INPUT_KEYBOARD, .ki = { VK_UP,  .dwFlags = KEYEVENTF_KEYUP }},
+    { INPUT_KEYBOARD, .ki = { VK_LWIN, .dwFlags = KEYEVENTF_KEYUP }},
+};
+// Input to inject when right top corner activated (Win+Down)
+static const INPUT kCornerInputRT2[] = {
+	{ INPUT_KEYBOARD,.ki = { VK_LWIN,.dwFlags = 0 } },
+	{ INPUT_KEYBOARD,.ki = { VK_DOWN,.dwFlags = 0 } },
+	{ INPUT_KEYBOARD,.ki = { VK_DOWN,.dwFlags = KEYEVENTF_KEYUP } },
+	{ INPUT_KEYBOARD,.ki = { VK_LWIN,.dwFlags = KEYEVENTF_KEYUP } },
+};
+// Input to inject when left bottom corner activated (Win+Tab)
+static const INPUT kCornerInputLB[] = {
     { INPUT_KEYBOARD, .ki = { VK_LWIN, .dwFlags = 0 }},
     { INPUT_KEYBOARD, .ki = { VK_TAB,  .dwFlags = 0 }},
     { INPUT_KEYBOARD, .ki = { VK_TAB,  .dwFlags = KEYEVENTF_KEYUP }},
     { INPUT_KEYBOARD, .ki = { VK_LWIN, .dwFlags = KEYEVENTF_KEYUP }},
 };
+// Input to inject when right bottom corner activated (Win+Tab)
+static const INPUT kCornerInputRB[] = {
+    { INPUT_KEYBOARD, .ki = { VK_LWIN, .dwFlags = 0 }},
+    { INPUT_KEYBOARD, .ki = { 'M',  .dwFlags = 0 }},
+    { INPUT_KEYBOARD, .ki = { 'M',  .dwFlags = KEYEVENTF_KEYUP }},
+    { INPUT_KEYBOARD, .ki = { VK_LWIN, .dwFlags = KEYEVENTF_KEYUP }},
+};
 
-// How long cursor has to linger in the kHotCorner RECT to trigger input.
-static const DWORD kHotDelay = 300;
+// How long cursor has to linger in the kHotCornerLT RECT to trigger input.
+static const DWORD kHotDelay = 100;
 
 // You can exit the application using the hot key CTRL+ALT+C by default, if it
 // interferes with some application you're using (e.g. a full screen game).
@@ -54,6 +106,7 @@ static DWORD WINAPI CornerHotFunc(LPVOID lpParameter)
 {
     BYTE KeyState[256];
     POINT Point;
+	HWND foregroundWindow = GetForegroundWindow();
 
     Sleep(kHotDelay);
 
@@ -77,12 +130,47 @@ static DWORD WINAPI CornerHotFunc(LPVOID lpParameter)
     }
 
     // Check co-ordinates.
-    if (PtInRect(&kHotCorner, Point)) {
+    if (PtInRect(&kHotCornerLT, Point)) {
         #pragma warning(suppress : 4090)
-        if (SendInput(_countof(kCornerInput), kCornerInput, sizeof(INPUT)) != _countof(kCornerInput)) {
+        if (SendInput(_countof(kCornerInputLT), kCornerInputLT, sizeof(INPUT)) != _countof(kCornerInputLT)) {
             return 1;
         }
-    }
+	}
+	else if (PtInRect(&kHotCornerRT, Point)) {
+		// If the foreground window is maximized
+		if (foregroundWindow && !IsZoomed(foregroundWindow))
+		{
+			// Win + Up
+			#pragma warning(suppress : 4090)
+			if (SendInput(_countof(kCornerInputRT), kCornerInputRT, sizeof(INPUT)) != _countof(kCornerInputRT)) {
+				return 1;
+			}
+		}
+		else {
+			// Win + Down
+			#pragma warning(suppress : 4090)
+			if (SendInput(_countof(kCornerInputRT2), kCornerInputRT2, sizeof(INPUT)) != _countof(kCornerInputRT2)) {
+				return 1;
+			}
+		}
+	}
+	else if (PtInRect(&kHotCornerLB, Point)) {
+		#pragma warning(suppress : 4090)
+		if (SendInput(_countof(kCornerInputLB), kCornerInputLB, sizeof(INPUT)) != _countof(kCornerInputLB)) {
+			return 1;
+		}
+	}
+	else if (PtInRect(&kHotCornerRB, Point)) {
+		#pragma warning(suppress : 4090)
+		// If the foreground is minimized
+		if (foregroundWindow) {
+			// Win + M
+			#pragma warning(suppress : 4090)
+			if (SendInput(_countof(kCornerInputRB), kCornerInputRB, sizeof(INPUT)) != _countof(kCornerInputRB)) {
+				return 1;
+			}
+		}
+	}
 
     return 0;
 }
@@ -96,7 +184,11 @@ static LRESULT CALLBACK MouseHookCallback(int nCode, WPARAM wParam, LPARAM lPara
         goto finish;
 
     // Check if the cursor is hot or cold.
-    if (!PtInRect(&kHotCorner, evt->pt)) {
+    if (!PtInRect(&kHotCornerLT, evt->pt)
+		&& !PtInRect(&kHotCornerRT, evt->pt)
+		&& !PtInRect(&kHotCornerLB, evt->pt)
+        && !PtInRect(&kHotCornerRB, evt->pt)
+    ) {
 
         // The corner is cold, and was cold before.
         if (CornerThread == INVALID_HANDLE_VALUE)
@@ -138,6 +230,8 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
     if (!(MouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseHookCallback, NULL, 0)))
         return 1;
+
+    initCorners();
 
     RegisterHotKey(NULL, 1, kHotKeyModifiers, kHotKey);
 

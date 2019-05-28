@@ -24,7 +24,7 @@
 // There are some hints about changing corners here
 //      https://github.com/taviso/hotcorner/issues/7#issuecomment-269367351
 static const int radius = 20;
-static const int padding = 1000;
+static const int padding = 50;
 
 static RECT kHotCornerLT;
 static RECT kHotCornerRT;
@@ -56,9 +56,11 @@ static DWORD initCorners() {
 	return 0;
 }
 
-// Input to inject when left top corner activated (Win)
+// Input to inject when left top corner activated (Win+Tab)
 static const INPUT kCornerInputLT[] = {
     { INPUT_KEYBOARD, .ki = { VK_LWIN, .dwFlags = 0 }},
+    { INPUT_KEYBOARD, .ki = { VK_TAB,  .dwFlags = 0 }},
+    { INPUT_KEYBOARD, .ki = { VK_TAB,  .dwFlags = KEYEVENTF_KEYUP }},
     { INPUT_KEYBOARD, .ki = { VK_LWIN, .dwFlags = KEYEVENTF_KEYUP }},
 };
 // Input to inject when right top corner activated (Win+Up)
@@ -82,11 +84,11 @@ static const INPUT kCornerInputLB[] = {
     { INPUT_KEYBOARD, .ki = { VK_TAB,  .dwFlags = KEYEVENTF_KEYUP }},
     { INPUT_KEYBOARD, .ki = { VK_LWIN, .dwFlags = KEYEVENTF_KEYUP }},
 };
-// Input to inject when right bottom corner activated (Win+Tab)
+// Input to inject when right bottom corner activated (Win+D)
 static const INPUT kCornerInputRB[] = {
     { INPUT_KEYBOARD, .ki = { VK_LWIN, .dwFlags = 0 }},
-    { INPUT_KEYBOARD, .ki = { 'M',  .dwFlags = 0 }},
-    { INPUT_KEYBOARD, .ki = { 'M',  .dwFlags = KEYEVENTF_KEYUP }},
+    { INPUT_KEYBOARD, .ki = { 'D',  .dwFlags = 0 }},
+    { INPUT_KEYBOARD, .ki = { 'D',  .dwFlags = KEYEVENTF_KEYUP }},
     { INPUT_KEYBOARD, .ki = { VK_LWIN, .dwFlags = KEYEVENTF_KEYUP }},
 };
 

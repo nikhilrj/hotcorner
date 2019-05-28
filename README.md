@@ -1,23 +1,12 @@
-# Tiny Hot Corners for Windows 10
-## Modifications
-
-Now this can work for all the four corners at the same time.
+# Tiny Hot Corners for Windows 10 (from celestialphineas - all 4 corners working)
 
 Currently my configuration is:
-- Left top corner: start menu
-- Left bottom corner: task view
+- Left top corner: win+tab
+- Left bottom corner: win+tab
 - Right top corner: maximize/restore window size
 - Right bottom corner: show desktop
 
 DIY if you would like a different designation.
-
-![](https://raw.githubusercontent.com/celestialphineas/misc/master/desktop.png)
-
-I work on both elementary OS and Windows 10. The former has a full feature of designating hot corners, while Windows
-doesn't. Used to the smooth way of operating with hot corners, plunk and a simple status bar, Windows 10's task bar
-just seems unsuitable for me any more. So I decided to make my Windows work in a similar way, at least it will be
-as much as comfortable for me. Now I guess it won't be strange to switch between different ways of interation any
-longer.
 
 ## The Original Intro
 
